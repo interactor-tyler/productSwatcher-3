@@ -423,6 +423,12 @@
       font-size: 11px;
       margin-top: 4px;
     }
+
+    /* Canvas shadow */
+    .canvas-container {
+      box-shadow: 0 2px 12px rgba(0,0,0,0.15) !important;
+      border-radius: 4px !important;
+    }
   </style>
 </head>
 <body>
@@ -1062,6 +1068,36 @@
       document.body.removeChild(link);
     }
 
+    // ===== WINDOW RESIZE =====
+    function initResize() {
+      let resizeTimeout;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+          const area = document.getElementById('canvas-area');
+          const width = Math.min(area.clientWidth - 40, 600);
+          const height = Math.min(area.clientHeight - 40, 500);
+          state.canvas.setDimensions({ width, height });
+          state.canvas.renderAll();
+        }, 200);
+      });
+    }
+
+    // ===== KEYBOARD SHORTCUTS =====
+    function initKeyboard() {
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Delete' || e.key === 'Backspace') {
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('ql-editor')) return;
+
+          const active = state.canvas.getActiveObject();
+          if (active && active.name !== 'defaultBackground' && active.name !== 'backgroundImage' && active.name !== 'tintOverlay') {
+            state.canvas.remove(active);
+            state.canvas.renderAll();
+          }
+        }
+      });
+    }
+
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       initCanvas();
@@ -1071,6 +1107,8 @@
       initProductDetails();
       initZoom();
       initToolbar();
+      initResize();
+      initKeyboard();
     });
   </script>
 </body>
