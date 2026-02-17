@@ -329,6 +329,52 @@
       color: #fff;
       border-color: #1e39d2;
     }
+    /* Color swatches */
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .swatch {
+      width: 100%;
+      aspect-ratio: 1;
+      border: 2px solid #ddd;
+      border-radius: 50%;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      padding: 0;
+    }
+
+    .swatch:hover {
+      transform: scale(1.1);
+      border-color: #1e39d2;
+    }
+
+    .swatch.active {
+      border-color: #1e39d2;
+      box-shadow: 0 0 0 2px #1e39d2;
+    }
+
+    /* Quill editor container */
+    .product-info-section {
+      margin-top: 20px;
+    }
+
+    #quill-editor {
+      min-height: 150px;
+      background: #fff;
+      border-radius: 0 0 4px 4px;
+    }
+
+    .product-info-section .ql-toolbar {
+      border-radius: 4px 4px 0 0;
+    }
+
+    .product-info-section .ql-container {
+      border-radius: 0 0 4px 4px;
+      font-size: 13px;
+    }
   </style>
 </head>
 <body>
@@ -432,7 +478,31 @@
     </div>
   </div>
 </div>
-          <div id="tab-details" class="tab-pane"></div>
+          <div id="tab-details" class="tab-pane">
+  <div class="details-section">
+    <h3 class="section-title">Product Details</h3>
+
+    <div class="color-swatches-section">
+      <h4 class="section-subtitle">Product Colors Available</h4>
+      <div id="color-swatches" class="swatch-grid">
+        <button class="swatch" data-color="#FF0000" style="background:#FF0000" title="Red"></button>
+        <button class="swatch" data-color="#0000FF" style="background:#0000FF" title="Blue"></button>
+        <button class="swatch" data-color="#008000" style="background:#008000" title="Green"></button>
+        <button class="swatch" data-color="#FFFF00" style="background:#FFFF00" title="Yellow"></button>
+        <button class="swatch" data-color="#FF8C00" style="background:#FF8C00" title="Orange"></button>
+        <button class="swatch" data-color="#800080" style="background:#800080" title="Purple"></button>
+        <button class="swatch" data-color="#000000" style="background:#000000" title="Black"></button>
+        <button class="swatch" data-color="#FFFFFF" style="background:#FFFFFF; border-color:#ccc" title="White"></button>
+      </div>
+      <button id="clear-tint" class="btn btn-secondary" style="width:100%; margin-top:8px; font-size:11px;">Clear Tint</button>
+    </div>
+
+    <div class="product-info-section">
+      <h4 class="section-subtitle">Product Details</h4>
+      <div id="quill-editor"></div>
+    </div>
+  </div>
+</div>
         </div>
       </aside>
       <main id="canvas-area">
@@ -749,12 +819,77 @@
       document.getElementById('btn-underline').classList.toggle('active', !!active.underline);
     }
 
+    // ===== PRODUCT DETAILS FUNCTIONALITY =====
+    function initProductDetails() {
+      state.quillEditor = new Quill('#quill-editor', {
+        theme: 'snow',
+        placeholder: 'Enter product details, specs, or notes...',
+        modules: {
+          toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            ['bold', 'italic', 'underline'],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'color': [] }],
+            ['clean'],
+          ],
+        },
+      });
+
+      const swatches = document.querySelectorAll('.swatch');
+      swatches.forEach(swatch => {
+        swatch.addEventListener('click', () => {
+          swatches.forEach(s => s.classList.remove('active'));
+          swatch.classList.add('active');
+          applyTint(swatch.dataset.color);
+        });
+      });
+
+      document.getElementById('clear-tint').addEventListener('click', () => {
+        swatches.forEach(s => s.classList.remove('active'));
+        removeTint();
+      });
+    }
+
+    function applyTint(color) {
+      const canvas = state.canvas;
+
+      if (state.tintOverlay) {
+        canvas.remove(state.tintOverlay);
+      }
+
+      const tint = new fabric.Rect({
+        width: canvas.width,
+        height: canvas.height,
+        fill: color,
+        opacity: 0.25,
+        selectable: false,
+        evented: false,
+        name: 'tintOverlay',
+      });
+
+      state.tintOverlay = tint;
+      state.tintColor = color;
+
+      canvas.insertAt(tint, 1);
+      canvas.renderAll();
+    }
+
+    function removeTint() {
+      if (state.tintOverlay) {
+        state.canvas.remove(state.tintOverlay);
+        state.tintOverlay = null;
+        state.tintColor = null;
+        state.canvas.renderAll();
+      }
+    }
+
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       initCanvas();
       initTabs();
       initUpload();
       initText();
+      initProductDetails();
     });
   </script>
 </body>
