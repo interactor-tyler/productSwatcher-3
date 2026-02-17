@@ -167,7 +167,124 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
   <script>
-    // JS will be added starting Task 3
+    // ===== APP STATE =====
+    const state = {
+      canvas: null,
+      backgroundImage: null,
+      tintOverlay: null,
+      tintColor: null,
+      quillEditor: null,
+      zoomLevel: 1,
+      uploadedOverlays: [],
+    };
+
+    // ===== CANVAS SETUP =====
+    function initCanvas() {
+      const area = document.getElementById('canvas-area');
+      const width = Math.min(area.clientWidth - 40, 600);
+      const height = Math.min(area.clientHeight - 40, 500);
+
+      state.canvas = new fabric.Canvas('product-canvas', {
+        width: width,
+        height: height,
+        backgroundColor: '#ffffff',
+        selection: true,
+        preserveObjectStacking: true,
+      });
+
+      loadDefaultBackground();
+    }
+
+    function loadDefaultBackground() {
+      const canvas = state.canvas;
+      const defaultBg = new fabric.Rect({
+        width: canvas.width,
+        height: canvas.height,
+        fill: '#e0e0e0',
+        selectable: false,
+        evented: false,
+      });
+
+      const placeholderText = new fabric.Text('Upload a Product Image', {
+        fontSize: 20,
+        fill: '#999',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        selectable: false,
+        evented: false,
+      });
+
+      placeholderText.set({
+        left: (canvas.width - placeholderText.width) / 2,
+        top: (canvas.height - placeholderText.height) / 2,
+      });
+
+      const bgGroup = new fabric.Group([defaultBg, placeholderText], {
+        selectable: false,
+        evented: false,
+        name: 'defaultBackground',
+      });
+
+      state.backgroundImage = bgGroup;
+      canvas.insertAt(bgGroup, 0);
+      canvas.renderAll();
+    }
+
+    function setBackgroundImage(dataUrl) {
+      const canvas = state.canvas;
+
+      fabric.Image.fromURL(dataUrl, function(img) {
+        if (state.backgroundImage) {
+          canvas.remove(state.backgroundImage);
+        }
+
+        const scaleX = canvas.width / img.width;
+        const scaleY = canvas.height / img.height;
+        const scale = Math.min(scaleX, scaleY);
+
+        img.set({
+          scaleX: scale,
+          scaleY: scale,
+          left: (canvas.width - img.width * scale) / 2,
+          top: (canvas.height - img.height * scale) / 2,
+          selectable: false,
+          evented: false,
+          name: 'backgroundImage',
+        });
+
+        state.backgroundImage = img;
+        canvas.insertAt(img, 0);
+
+        if (state.tintOverlay) {
+          canvas.remove(state.tintOverlay);
+          canvas.insertAt(state.tintOverlay, 1);
+        }
+
+        canvas.renderAll();
+      });
+    }
+
+    // ===== TAB SWITCHING =====
+    function initTabs() {
+      const tabBtns = document.querySelectorAll('.tab-btn');
+      const tabPanes = document.querySelectorAll('.tab-pane');
+
+      tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabBtns.forEach(b => b.classList.remove('active'));
+          tabPanes.forEach(p => p.classList.remove('active'));
+
+          btn.classList.add('active');
+          const tabId = 'tab-' + btn.dataset.tab;
+          document.getElementById(tabId).classList.add('active');
+        });
+      });
+    }
+
+    // ===== INIT =====
+    document.addEventListener('DOMContentLoaded', () => {
+      initCanvas();
+      initTabs();
+    });
   </script>
 </body>
 </html>
