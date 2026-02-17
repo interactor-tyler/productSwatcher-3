@@ -375,6 +375,54 @@
       border-radius: 0 0 4px 4px;
       font-size: 13px;
     }
+    /* Zoom controls */
+    .zoom-controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .zoom-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #666;
+      text-transform: uppercase;
+    }
+
+    .zoom-btn {
+      width: 40px;
+      height: 40px;
+      border: 1px solid #ddd;
+      border-radius: 50%;
+      background: #fff;
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, border-color 0.2s;
+    }
+
+    .zoom-btn:hover {
+      background: #f0f3ff;
+      border-color: #1e39d2;
+    }
+
+    .zoom-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .zoom-reset {
+      border-radius: 4px;
+      width: auto;
+      padding: 6px 12px;
+      font-size: 11px;
+      margin-top: 4px;
+    }
   </style>
 </head>
 <body>
@@ -508,7 +556,15 @@
       <main id="canvas-area">
         <canvas id="product-canvas"></canvas>
       </main>
-      <aside id="right-panel"></aside>
+      <aside id="right-panel">
+        <div class="zoom-controls">
+          <span class="zoom-label">Zoom</span>
+          <button id="zoom-in" class="zoom-btn" title="Zoom In">+</button>
+          <span id="zoom-level" class="zoom-value">100%</span>
+          <button id="zoom-out" class="zoom-btn" title="Zoom Out">&minus;</button>
+          <button id="zoom-reset" class="zoom-btn zoom-reset" title="Reset Zoom">Reset</button>
+        </div>
+      </aside>
     </div>
     <footer id="bottom-toolbar"></footer>
   </div>
@@ -883,6 +939,29 @@
       }
     }
 
+    // ===== ZOOM FUNCTIONALITY =====
+    function initZoom() {
+      document.getElementById('zoom-in').addEventListener('click', () => {
+        setZoom(state.zoomLevel + 0.1);
+      });
+
+      document.getElementById('zoom-out').addEventListener('click', () => {
+        setZoom(state.zoomLevel - 0.1);
+      });
+
+      document.getElementById('zoom-reset').addEventListener('click', () => {
+        setZoom(1);
+      });
+    }
+
+    function setZoom(level) {
+      level = Math.max(0.25, Math.min(3, level));
+      state.zoomLevel = level;
+      state.canvas.setZoom(level);
+      document.getElementById('zoom-level').textContent = Math.round(level * 100) + '%';
+      state.canvas.renderAll();
+    }
+
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       initCanvas();
@@ -890,6 +969,7 @@
       initUpload();
       initText();
       initProductDetails();
+      initZoom();
     });
   </script>
 </body>
