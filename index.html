@@ -566,7 +566,11 @@
         </div>
       </aside>
     </div>
-    <footer id="bottom-toolbar"></footer>
+    <footer id="bottom-toolbar">
+      <button id="btn-cancel" class="btn btn-secondary">Cancel</button>
+      <button id="btn-save" class="btn btn-primary">Save Image</button>
+      <button id="btn-download" class="btn btn-primary">Download JPG</button>
+    </footer>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
@@ -962,6 +966,102 @@
       state.canvas.renderAll();
     }
 
+    // ===== BOTTOM TOOLBAR =====
+    function initToolbar() {
+      document.getElementById('btn-cancel').addEventListener('click', handleCancel);
+      document.getElementById('btn-save').addEventListener('click', handleSaveImage);
+      document.getElementById('btn-download').addEventListener('click', handleDownloadJPG);
+    }
+
+    function handleCancel() {
+      if (!confirm('Reset all changes? This cannot be undone.')) return;
+
+      const canvas = state.canvas;
+
+      canvas.clear();
+
+      state.backgroundImage = null;
+      state.tintOverlay = null;
+      state.tintColor = null;
+      state.uploadedOverlays = [];
+      state.zoomLevel = 1;
+
+      canvas.setZoom(1);
+      document.getElementById('zoom-level').textContent = '100%';
+
+      canvas.backgroundColor = '#ffffff';
+      loadDefaultBackground();
+
+      // Clear overlay thumbnails using safe DOM manipulation
+      const thumbsContainer = document.getElementById('overlay-thumbs');
+      while (thumbsContainer.firstChild) {
+        thumbsContainer.removeChild(thumbsContainer.firstChild);
+      }
+
+      if (state.quillEditor) {
+        state.quillEditor.setContents([]);
+      }
+
+      document.querySelectorAll('.swatch').forEach(s => s.classList.remove('active'));
+
+      const overlayRadio = document.querySelector('input[name="upload-mode"][value="overlay"]');
+      if (overlayRadio) overlayRadio.checked = true;
+
+      canvas.renderAll();
+    }
+
+    function handleSaveImage() {
+      const canvas = state.canvas;
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
+
+      const dataUrl = canvas.toDataURL({
+        format: 'png',
+        quality: 1,
+        multiplier: 2,
+      });
+
+      canvas.clear();
+      canvas.backgroundColor = '#ffffff';
+
+      fabric.Image.fromURL(dataUrl, function(img) {
+        const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+        img.set({
+          scaleX: scale,
+          scaleY: scale,
+          left: canvas.width / 2,
+          top: canvas.height / 2,
+          originX: 'center',
+          originY: 'center',
+          selectable: false,
+          evented: false,
+        });
+        canvas.add(img);
+        canvas.renderAll();
+      });
+    }
+
+    function handleDownloadJPG() {
+      const canvas = state.canvas;
+
+      canvas.discardActiveObject();
+      canvas.renderAll();
+
+      const dataUrl = canvas.toDataURL({
+        format: 'jpeg',
+        quality: 0.95,
+        multiplier: 2,
+      });
+
+      const link = document.createElement('a');
+      link.download = 'product-swatcher-' + Date.now() + '.jpg';
+      link.href = dataUrl;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       initCanvas();
@@ -970,6 +1070,7 @@
       initText();
       initProductDetails();
       initZoom();
+      initToolbar();
     });
   </script>
 </body>
