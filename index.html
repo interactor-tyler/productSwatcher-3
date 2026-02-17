@@ -136,6 +136,121 @@
       gap: 12px;
       box-shadow: 0 -1px 3px rgba(0,0,0,0.1);
     }
+    /* Buttons */
+    .btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-primary {
+      background: #1e39d2;
+      color: #fff;
+    }
+
+    .btn-primary:hover {
+      background: #1630b0;
+    }
+
+    .btn-secondary {
+      background: #6c757d;
+      color: #fff;
+    }
+
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+
+    /* Section titles */
+    .section-title {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #333;
+    }
+
+    .section-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      margin: 12px 0 8px;
+      color: #666;
+    }
+
+    /* Upload dropzone */
+    .dropzone {
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      color: #999;
+      font-size: 13px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .dropzone.drag-over {
+      border-color: #1e39d2;
+      background: #f0f3ff;
+    }
+
+    .dropzone p {
+      margin-bottom: 4px;
+    }
+
+    .dropzone-sub {
+      font-size: 11px;
+      margin: 8px 0 !important;
+    }
+
+    .upload-label {
+      display: inline-block;
+      margin-top: 8px;
+    }
+
+    /* Upload mode radios */
+    .upload-mode {
+      margin-top: 12px;
+      display: flex;
+      gap: 16px;
+    }
+
+    .radio-label {
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+      color: #555;
+    }
+
+    /* Overlay gallery */
+    .overlay-gallery {
+      margin-top: 16px;
+    }
+
+    .thumb-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .thumb-grid img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      border: 2px solid #eee;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+
+    .thumb-grid img:hover {
+      border-color: #1e39d2;
+    }
   </style>
 </head>
 <body>
@@ -151,7 +266,36 @@
           <button class="tab-btn" data-tab="details">Product Details</button>
         </div>
         <div id="tab-content">
-          <div id="tab-upload" class="tab-pane active"></div>
+          <div id="tab-upload" class="tab-pane active">
+            <div class="upload-section">
+              <h3 class="section-title">Upload Image</h3>
+
+              <div id="upload-dropzone" class="dropzone">
+                <p>Drag & drop image here</p>
+                <p class="dropzone-sub">or</p>
+                <label class="btn btn-primary upload-label">
+                  Browse Files
+                  <input type="file" id="file-input" accept="image/*" hidden>
+                </label>
+              </div>
+
+              <div class="upload-mode">
+                <label class="radio-label">
+                  <input type="radio" name="upload-mode" value="overlay" checked>
+                  Add as Overlay
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="upload-mode" value="background">
+                  Set as Background
+                </label>
+              </div>
+
+              <div id="overlay-gallery" class="overlay-gallery">
+                <h4 class="section-subtitle">Uploaded Overlays</h4>
+                <div id="overlay-thumbs" class="thumb-grid"></div>
+              </div>
+            </div>
+          </div>
           <div id="tab-text" class="tab-pane"></div>
           <div id="tab-details" class="tab-pane"></div>
         </div>
@@ -280,10 +424,99 @@
       });
     }
 
+    // ===== UPLOAD FUNCTIONALITY =====
+    function initUpload() {
+      const dropzone = document.getElementById('upload-dropzone');
+      const fileInput = document.getElementById('file-input');
+
+      dropzone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropzone.classList.add('drag-over');
+      });
+
+      dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('drag-over');
+      });
+
+      dropzone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropzone.classList.remove('drag-over');
+        const file = e.dataTransfer.files[0];
+        if (file && file.type.startsWith('image/')) {
+          handleImageUpload(file);
+        }
+      });
+
+      fileInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+          handleImageUpload(file);
+        }
+        fileInput.value = '';
+      });
+
+      dropzone.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'INPUT') {
+          fileInput.click();
+        }
+      });
+    }
+
+    function handleImageUpload(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const mode = document.querySelector('input[name="upload-mode"]:checked').value;
+
+        if (mode === 'background') {
+          setBackgroundImage(dataUrl);
+        } else {
+          addOverlayImage(dataUrl);
+          addOverlayThumbnail(dataUrl);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function addOverlayImage(dataUrl) {
+      const canvas = state.canvas;
+
+      fabric.Image.fromURL(dataUrl, function(img) {
+        const maxW = canvas.width * 0.4;
+        const maxH = canvas.height * 0.4;
+        const scale = Math.min(maxW / img.width, maxH / img.height, 1);
+
+        img.set({
+          scaleX: scale,
+          scaleY: scale,
+          left: canvas.width / 2,
+          top: canvas.height / 2,
+          originX: 'center',
+          originY: 'center',
+          name: 'overlay',
+        });
+
+        canvas.add(img);
+        canvas.setActiveObject(img);
+        canvas.renderAll();
+      });
+    }
+
+    function addOverlayThumbnail(dataUrl) {
+      state.uploadedOverlays.push(dataUrl);
+      const thumbsContainer = document.getElementById('overlay-thumbs');
+      const thumb = document.createElement('img');
+      thumb.src = dataUrl;
+      thumb.title = 'Click to add again';
+      thumb.addEventListener('click', () => addOverlayImage(dataUrl));
+      thumbsContainer.appendChild(thumb);
+    }
+
     // ===== INIT =====
     document.addEventListener('DOMContentLoaded', () => {
       initCanvas();
       initTabs();
+      initUpload();
     });
   </script>
 </body>
