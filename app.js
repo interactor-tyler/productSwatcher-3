@@ -5,6 +5,9 @@ const state = {
   quillEditor: null,
   zoomLevel: 1,
   uploadedOverlays: [],
+  isPanning: false,
+  panStartX: 0,
+  panStartY: 0,
 };
 
 // ===== CANVAS SETUP =====
@@ -330,7 +333,87 @@ function setZoom(level) {
   state.zoomLevel = level;
   state.canvas.setZoom(level);
   document.getElementById('zoom-level').textContent = Math.round(level * 100) + '%';
+
+  // Reset pan when zooming back to 100% or below
+  if (level <= 1) {
+    const vpt = state.canvas.viewportTransform;
+    vpt[4] = 0;
+    vpt[5] = 0;
+    state.canvas.setViewportTransform(vpt);
+  }
+
+  updatePanCursor();
   state.canvas.renderAll();
+}
+
+// ===== CANVAS PANNING =====
+function initPanning() {
+  const canvas = state.canvas;
+
+  canvas.on('mouse:down', function(opt) {
+    // Only pan when zoomed in and clicking on empty canvas (no object targeted)
+    if (state.zoomLevel <= 1) return;
+    if (opt.target) return;
+
+    state.isPanning = true;
+    state.panStartX = opt.e.clientX;
+    state.panStartY = opt.e.clientY;
+    canvas.selection = false;
+    canvas.setCursor('grabbing');
+  });
+
+  canvas.on('mouse:move', function(opt) {
+    if (!state.isPanning) return;
+
+    const dx = opt.e.clientX - state.panStartX;
+    const dy = opt.e.clientY - state.panStartY;
+
+    const vpt = canvas.viewportTransform;
+    vpt[4] += dx;
+    vpt[5] += dy;
+
+    // Clamp panning so canvas doesn't scroll too far off screen
+    const zoom = state.zoomLevel;
+    const maxPanX = (canvas.width * zoom - canvas.width) / 2;
+    const maxPanY = (canvas.height * zoom - canvas.height) / 2;
+    vpt[4] = Math.max(-maxPanX, Math.min(maxPanX, vpt[4]));
+    vpt[5] = Math.max(-maxPanY, Math.min(maxPanY, vpt[5]));
+
+    canvas.setViewportTransform(vpt);
+
+    state.panStartX = opt.e.clientX;
+    state.panStartY = opt.e.clientY;
+  });
+
+  canvas.on('mouse:up', function() {
+    if (state.isPanning) {
+      state.isPanning = false;
+      canvas.selection = true;
+      updatePanCursor();
+    }
+  });
+
+  // Update cursor when hovering over empty canvas area while zoomed
+  canvas.on('mouse:over', function(opt) {
+    if (state.zoomLevel > 1 && !opt.target) {
+      canvas.defaultCursor = 'grab';
+    }
+  });
+
+  canvas.on('mouse:out', function() {
+    if (state.zoomLevel > 1) {
+      canvas.defaultCursor = 'grab';
+    }
+  });
+}
+
+function updatePanCursor() {
+  const canvas = state.canvas;
+  if (state.zoomLevel > 1) {
+    canvas.defaultCursor = 'grab';
+  } else {
+    canvas.defaultCursor = 'default';
+  }
 }
 
 // ===== BOTTOM TOOLBAR =====
@@ -352,7 +435,9 @@ function handleCancel() {
   state.zoomLevel = 1;
 
   canvas.setZoom(1);
+  canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
   document.getElementById('zoom-level').textContent = '100%';
+  updatePanCursor();
 
   canvas.backgroundColor = '#ffffff';
   loadDefaultBackground();
@@ -379,9 +464,11 @@ function handleSaveImage() {
   canvas.discardActiveObject();
   canvas.renderAll();
 
-  // Temporarily reset zoom for accurate export
+  // Temporarily reset zoom and pan for accurate export
   const currentZoom = state.zoomLevel;
+  const currentVpt = canvas.viewportTransform.slice();
   canvas.setZoom(1);
+  canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 
   const dataUrl = canvas.toDataURL({
     format: 'png',
@@ -390,6 +477,7 @@ function handleSaveImage() {
   });
 
   canvas.setZoom(currentZoom);
+  canvas.setViewportTransform(currentVpt);
 
   canvas.clear();
   canvas.backgroundColor = '#ffffff';
@@ -420,9 +508,11 @@ function handleDownloadJPG() {
   canvas.discardActiveObject();
   canvas.renderAll();
 
-  // Temporarily reset zoom for accurate export
+  // Temporarily reset zoom and pan for accurate export
   const currentZoom = state.zoomLevel;
+  const currentVpt = canvas.viewportTransform.slice();
   canvas.setZoom(1);
+  canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
 
   const dataUrl = canvas.toDataURL({
     format: 'jpeg',
@@ -431,6 +521,7 @@ function handleDownloadJPG() {
   });
 
   canvas.setZoom(currentZoom);
+  canvas.setViewportTransform(currentVpt);
 
   const link = document.createElement('a');
   link.download = 'product-swatcher-' + Date.now() + '.jpg';
@@ -479,6 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initUpload();
   initText();
   initZoom();
+  initPanning();
   initToolbar();
   initResize();
   initKeyboard();
