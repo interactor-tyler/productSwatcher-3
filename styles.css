@@ -1,0 +1,426 @@
+/* ===== RESET & BASE ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: "Lato", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f1f1f1;
+  color: #33363b;
+  height: 100vh;
+  overflow: hidden;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+/* ===== HEADER ===== */
+#header {
+  background: #33363b;
+  padding: 10px 20px;
+  border-bottom: 1px solid #2a2d31;
+}
+
+#header h1 {
+  font-family: "Hind", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+  color: #ffffff;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* ===== MAIN THREE-COLUMN LAYOUT ===== */
+#main {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ===== LEFT PANEL ===== */
+#left-panel {
+  width: 280px;
+  min-width: 280px;
+  background: #ffffff;
+  border-right: 1px solid #cccccc;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+}
+
+#tab-bar {
+  display: flex;
+  border-bottom: 1px solid #cccccc;
+  background: #f9f9f9;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 12px 8px;
+  border: none;
+  background: transparent;
+  font-family: "Hind", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8c8b8b;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.tab-btn:hover {
+  color: #7ebc59;
+}
+
+.tab-btn.active {
+  color: #7ebc59;
+  border-bottom-color: #7ebc59;
+}
+
+#tab-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.tab-pane {
+  display: none;
+}
+
+.tab-pane.active {
+  display: block;
+}
+
+/* ===== CANVAS AREA ===== */
+#canvas-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #eaeaea;
+  padding: 20px;
+  position: relative;
+}
+
+/* ===== RIGHT PANEL ===== */
+#right-panel {
+  width: 80px;
+  min-width: 80px;
+  background: #ffffff;
+  border-left: 1px solid #cccccc;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 8px;
+  gap: 8px;
+}
+
+/* ===== BOTTOM TOOLBAR ===== */
+#bottom-toolbar {
+  background: #33363b;
+  padding: 12px 20px;
+  border-top: 1px solid #2a2d31;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 0;
+  font-family: "Hind", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-primary {
+  background: #7ebc59;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background: #6aa648;
+}
+
+.btn-secondary {
+  background: #3a3a3a;
+  color: #ffffff;
+}
+
+.btn-secondary:hover {
+  background: #7ebc59;
+}
+
+/* ===== SECTION TITLES ===== */
+.section-title {
+  font-family: "Hind", sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: #33363b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.section-subtitle {
+  font-family: "Hind", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  margin: 16px 0 8px;
+  color: #8c8b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* ===== UPLOAD DROPZONE ===== */
+.dropzone {
+  border: 2px dashed #cccccc;
+  border-radius: 0;
+  padding: 24px;
+  text-align: center;
+  color: #8c8b8b;
+  font-size: 13px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.dropzone.drag-over {
+  border-color: #7ebc59;
+  background: #f4faf0;
+}
+
+.dropzone p {
+  margin-bottom: 4px;
+}
+
+.dropzone-sub {
+  font-size: 11px;
+  margin: 8px 0 !important;
+}
+
+.upload-label {
+  display: inline-block;
+  margin-top: 8px;
+}
+
+/* ===== UPLOAD MODE RADIOS ===== */
+.upload-mode {
+  margin-top: 12px;
+  display: flex;
+  gap: 16px;
+}
+
+.radio-label {
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: #696969;
+}
+
+/* ===== OVERLAY GALLERY ===== */
+.overlay-gallery {
+  margin-top: 16px;
+}
+
+.thumb-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.thumb-grid img {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.thumb-grid img:hover {
+  border-color: #7ebc59;
+}
+
+/* ===== FORM ELEMENTS ===== */
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-label {
+  display: block;
+  font-family: "Hind", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8c8b8b;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  font-size: 13px;
+  font-family: "Lato", sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #7ebc59;
+}
+
+.form-select {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  font-size: 13px;
+  font-family: "Lato", sans-serif;
+  outline: none;
+  background: #ffffff;
+}
+
+.form-select:focus {
+  border-color: #7ebc59;
+}
+
+.form-color {
+  width: 100%;
+  height: 36px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  cursor: pointer;
+  padding: 2px;
+}
+
+/* ===== STYLE BUTTONS ===== */
+.style-buttons {
+  display: flex;
+  gap: 4px;
+}
+
+.style-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.style-btn:hover {
+  background: #f4faf0;
+  border-color: #7ebc59;
+}
+
+.style-btn.active {
+  background: #7ebc59;
+  color: #ffffff;
+  border-color: #7ebc59;
+}
+
+/* ===== QUILL EDITOR ===== */
+.product-info-section {
+  margin-top: 16px;
+}
+
+#quill-editor {
+  min-height: 120px;
+  background: #ffffff;
+  font-family: "Lato", sans-serif;
+}
+
+.product-info-section .ql-toolbar {
+  border-color: #cccccc;
+  border-radius: 0;
+}
+
+.product-info-section .ql-container {
+  border-color: #cccccc;
+  border-radius: 0;
+  font-size: 13px;
+}
+
+/* ===== ZOOM CONTROLS ===== */
+.zoom-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.zoom-label {
+  font-family: "Hind", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8c8b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.zoom-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  color: #33363b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.zoom-btn:hover {
+  background: #f4faf0;
+  border-color: #7ebc59;
+  color: #7ebc59;
+}
+
+.zoom-value {
+  font-size: 13px;
+  font-weight: 700;
+  color: #33363b;
+}
+
+.zoom-reset {
+  border-radius: 0;
+  width: auto;
+  padding: 6px 12px;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
+/* ===== CANVAS SHADOW ===== */
+.canvas-container {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.12) !important;
+  border-radius: 0 !important;
+}
