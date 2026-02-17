@@ -727,7 +727,7 @@
       });
 
       dropzone.addEventListener('click', (e) => {
-        if (e.target.tagName !== 'INPUT') {
+        if (!e.target.closest('.upload-label')) {
           fileInput.click();
         }
       });
@@ -1022,14 +1022,25 @@
       canvas.discardActiveObject();
       canvas.renderAll();
 
+      // Temporarily reset zoom for accurate export
+      const currentZoom = state.zoomLevel;
+      canvas.setZoom(1);
+
       const dataUrl = canvas.toDataURL({
         format: 'png',
         quality: 1,
         multiplier: 2,
       });
 
+      canvas.setZoom(currentZoom);
+
       canvas.clear();
       canvas.backgroundColor = '#ffffff';
+
+      // Clear stale state references after canvas.clear()
+      state.backgroundImage = null;
+      state.tintOverlay = null;
+      state.tintColor = null;
 
       fabric.Image.fromURL(dataUrl, function(img) {
         const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
@@ -1054,11 +1065,17 @@
       canvas.discardActiveObject();
       canvas.renderAll();
 
+      // Temporarily reset zoom for accurate export
+      const currentZoom = state.zoomLevel;
+      canvas.setZoom(1);
+
       const dataUrl = canvas.toDataURL({
         format: 'jpeg',
         quality: 0.95,
         multiplier: 2,
       });
+
+      canvas.setZoom(currentZoom);
 
       const link = document.createElement('a');
       link.download = 'product-swatcher-' + Date.now() + '.jpg';
@@ -1087,9 +1104,11 @@
     function initKeyboard() {
       document.addEventListener('keydown', (e) => {
         if (e.key === 'Delete' || e.key === 'Backspace') {
-          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.classList.contains('ql-editor')) return;
+          if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.isContentEditable || e.target.classList.contains('ql-editor')) return;
 
           const active = state.canvas.getActiveObject();
+          // Don't delete if IText is in inline editing mode
+          if (active && active.isEditing) return;
           if (active && active.name !== 'defaultBackground' && active.name !== 'backgroundImage' && active.name !== 'tintOverlay') {
             state.canvas.remove(active);
             state.canvas.renderAll();
