@@ -14,6 +14,8 @@
   <div id="app">
     <header id="header">
       <h1>Product Swatcher</h1>
+      <button id="menu-toggle" class="menu-toggle"
+              aria-label="Open menu" aria-expanded="false">&#9776;</button>
     </header>
     <div id="main">
       <aside id="left-panel">
@@ -126,6 +128,7 @@
       <button id="btn-save" class="btn btn-primary">Save Image</button>
       <button id="btn-download" class="btn btn-primary">Download JPG</button>
     </footer>
+    <div id="sidebar-backdrop" class="sidebar-backdrop" aria-hidden="true"></div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
