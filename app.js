@@ -367,33 +367,46 @@ function setZoom(level) {
   state.canvas.renderAll();
 }
 
+// Returns {x, y} from either MouseEvent or TouchEvent
+function getPointerXY(e) {
+  if (e.touches && e.touches.length > 0) {
+    return { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  }
+  return { x: e.clientX, y: e.clientY };
+}
+
 // ===== CANVAS PANNING =====
 function initPanning() {
   const canvas = state.canvas;
 
   canvas.on('mouse:down', function(opt) {
-    // Only pan when zoomed in and clicking on empty canvas (no object targeted)
+    const e = opt.e;
+    // Skip multi-touch (pinch gesture) — handled by initTouchZoom
+    if (e.touches && e.touches.length > 1) return;
     if (state.zoomLevel <= 1) return;
     if (opt.target) return;
 
+    const { x, y } = getPointerXY(e);
     state.isPanning = true;
-    state.panStartX = opt.e.clientX;
-    state.panStartY = opt.e.clientY;
+    state.panStartX = x;
+    state.panStartY = y;
     canvas.selection = false;
     canvas.setCursor('grabbing');
   });
 
   canvas.on('mouse:move', function(opt) {
     if (!state.isPanning) return;
+    const e = opt.e;
+    if (e.touches && e.touches.length > 1) return;
 
-    const dx = opt.e.clientX - state.panStartX;
-    const dy = opt.e.clientY - state.panStartY;
+    const { x, y } = getPointerXY(e);
+    const dx = x - state.panStartX;
+    const dy = y - state.panStartY;
 
     const vpt = canvas.viewportTransform;
     vpt[4] += dx;
     vpt[5] += dy;
 
-    // Clamp panning so canvas doesn't scroll too far off screen
     const zoom = state.zoomLevel;
     const maxPanX = (canvas.width * zoom - canvas.width) / 2;
     const maxPanY = (canvas.height * zoom - canvas.height) / 2;
@@ -402,8 +415,8 @@ function initPanning() {
 
     canvas.setViewportTransform(vpt);
 
-    state.panStartX = opt.e.clientX;
-    state.panStartY = opt.e.clientY;
+    state.panStartX = x;
+    state.panStartY = y;
   });
 
   canvas.on('mouse:up', function() {
@@ -414,7 +427,6 @@ function initPanning() {
     }
   });
 
-  // Update cursor when hovering over empty canvas area while zoomed
   canvas.on('mouse:over', function(opt) {
     if (state.zoomLevel > 1 && !opt.target) {
       canvas.defaultCursor = 'grab';
