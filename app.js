@@ -252,17 +252,23 @@ function initText() {
   // Style toggles
   btnBold.addEventListener('click', () => {
     btnBold.classList.toggle('active');
-    updateActiveTextStyle('fontWeight', btnBold.classList.contains('active') ? 'bold' : 'normal');
+    const isActive = btnBold.classList.contains('active');
+    btnBold.setAttribute('aria-pressed', String(isActive));
+    updateActiveTextStyle('fontWeight', isActive ? 'bold' : 'normal');
   });
 
   btnItalic.addEventListener('click', () => {
     btnItalic.classList.toggle('active');
-    updateActiveTextStyle('fontStyle', btnItalic.classList.contains('active') ? 'italic' : 'normal');
+    const isActive = btnItalic.classList.contains('active');
+    btnItalic.setAttribute('aria-pressed', String(isActive));
+    updateActiveTextStyle('fontStyle', isActive ? 'italic' : 'normal');
   });
 
   btnUnderline.addEventListener('click', () => {
     btnUnderline.classList.toggle('active');
-    updateActiveTextStyle('underline', btnUnderline.classList.contains('active'));
+    const isActive = btnUnderline.classList.contains('active');
+    btnUnderline.setAttribute('aria-pressed', String(isActive));
+    updateActiveTextStyle('underline', isActive);
   });
 
   fontFamily.addEventListener('change', () => {
@@ -312,9 +318,20 @@ function updateTextControls() {
   document.getElementById('font-size').value = active.fontSize || 24;
   document.getElementById('font-color').value = active.fill || '#000000';
 
-  document.getElementById('btn-bold').classList.toggle('active', active.fontWeight === 'bold');
-  document.getElementById('btn-italic').classList.toggle('active', active.fontStyle === 'italic');
-  document.getElementById('btn-underline').classList.toggle('active', !!active.underline);
+  const isBold = active.fontWeight === 'bold';
+  const isItalic = active.fontStyle === 'italic';
+  const isUnderline = !!active.underline;
+
+  const btnBold = document.getElementById('btn-bold');
+  const btnItalic = document.getElementById('btn-italic');
+  const btnUnderline = document.getElementById('btn-underline');
+
+  btnBold.classList.toggle('active', isBold);
+  btnBold.setAttribute('aria-pressed', String(isBold));
+  btnItalic.classList.toggle('active', isItalic);
+  btnItalic.setAttribute('aria-pressed', String(isItalic));
+  btnUnderline.classList.toggle('active', isUnderline);
+  btnUnderline.setAttribute('aria-pressed', String(isUnderline));
 }
 
 // ===== ZOOM FUNCTIONALITY =====
