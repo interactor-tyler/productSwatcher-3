@@ -285,6 +285,8 @@ function initText() {
 
   document.querySelectorAll('.align-btn').forEach(btn => {
     btn.addEventListener('click', () => {
+      document.querySelectorAll('.align-btn').forEach(b => b.setAttribute('aria-pressed', 'false'));
+      btn.setAttribute('aria-pressed', 'true');
       updateActiveTextStyle('textAlign', btn.dataset.align);
     });
   });
@@ -488,6 +490,15 @@ function handleCancel() {
   const overlayRadio = document.querySelector('input[name="upload-mode"][value="overlay"]');
   if (overlayRadio) overlayRadio.checked = true;
 
+  // Reset style button ARIA state
+  ['btn-bold', 'btn-italic', 'btn-underline'].forEach(id => {
+    const btn = document.getElementById(id);
+    if (btn) {
+      btn.classList.remove('active');
+      btn.setAttribute('aria-pressed', 'false');
+    }
+  });
+
   canvas.renderAll();
 }
 
@@ -606,12 +617,18 @@ function initMobileSidebar() {
     app.classList.add('sidebar-open');
     toggle.setAttribute('aria-expanded', 'true');
     toggle.setAttribute('aria-label', 'Close menu');
+    document.getElementById('canvas-area').inert = true;
+    document.getElementById('bottom-toolbar').inert = true;
+    const firstTab = document.querySelector('#left-panel .tab-btn');
+    if (firstTab) firstTab.focus();
   }
 
   function closeSidebar() {
     app.classList.remove('sidebar-open');
     toggle.setAttribute('aria-expanded', 'false');
     toggle.setAttribute('aria-label', 'Open menu');
+    document.getElementById('canvas-area').inert = false;
+    document.getElementById('bottom-toolbar').inert = false;
     toggle.focus();
   }
 
@@ -627,6 +644,7 @@ function initMobileSidebar() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && app.classList.contains('sidebar-open')) {
+      e.stopPropagation();
       closeSidebar();
     }
   });
@@ -636,24 +654,38 @@ function initMobileSidebar() {
 function initTouchZoom() {
   const canvas = state.canvas;
   let gestureStartZoom = null;
+  let startDist = null;
 
-  canvas.on('touch:gesture', function(opt) {
-    if (!opt.e.touches || opt.e.touches.length < 2) return;
+  function pinchDist(touches) {
+    return Math.hypot(
+      touches[0].clientX - touches[1].clientX,
+      touches[0].clientY - touches[1].clientY
+    );
+  }
 
-    // Capture zoom at gesture start
-    if (gestureStartZoom === null) {
+  canvas.upperCanvasEl.addEventListener('touchstart', function(e) {
+    if (e.touches.length === 2) {
       gestureStartZoom = state.zoomLevel;
+      startDist = pinchDist(e.touches);
+      // Cancel any active single-finger pan so it doesn't resume stale
+      state.isPanning = false;
+      canvas.selection = true;
     }
+  }, { passive: true });
 
-    // opt.self.scale is cumulative from gesture start
-    const newZoom = gestureStartZoom * opt.self.scale;
-    setZoom(newZoom);
-  });
+  canvas.upperCanvasEl.addEventListener('touchmove', function(e) {
+    if (e.touches.length === 2 && gestureStartZoom !== null && startDist !== null) {
+      e.preventDefault();
+      setZoom(gestureStartZoom * (pinchDist(e.touches) / startDist));
+    }
+  }, { passive: false });
 
-  // Reset on finger lift so next gesture starts fresh
-  canvas.on('mouse:up', function() {
-    gestureStartZoom = null;
-  });
+  canvas.upperCanvasEl.addEventListener('touchend', function(e) {
+    if (e.touches.length < 2) {
+      gestureStartZoom = null;
+      startDist = null;
+    }
+  }, { passive: true });
 }
 
 // ===== INIT =====
