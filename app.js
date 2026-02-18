@@ -563,6 +563,43 @@ function initKeyboard() {
   });
 }
 
+// ===== MOBILE SIDEBAR =====
+function initMobileSidebar() {
+  const toggle = document.getElementById('menu-toggle');
+  const backdrop = document.getElementById('sidebar-backdrop');
+  const app = document.getElementById('app');
+
+  function openSidebar() {
+    app.classList.add('sidebar-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    toggle.setAttribute('aria-label', 'Close menu');
+  }
+
+  function closeSidebar() {
+    app.classList.remove('sidebar-open');
+    toggle.setAttribute('aria-expanded', 'false');
+    toggle.setAttribute('aria-label', 'Open menu');
+    toggle.focus();
+  }
+
+  toggle.addEventListener('click', () => {
+    if (app.classList.contains('sidebar-open')) {
+      closeSidebar();
+    } else {
+      openSidebar();
+    }
+  });
+
+  backdrop.addEventListener('click', closeSidebar);
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && app.classList.contains('sidebar-open')) {
+      e.preventDefault();
+      closeSidebar();
+    }
+  });
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
@@ -574,4 +611,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initToolbar();
   initResize();
   initKeyboard();
+  initMobileSidebar();
 });
