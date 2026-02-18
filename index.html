@@ -27,7 +27,7 @@
         </div>
         <div id="tab-content">
           <div id="tab-upload" class="tab-pane active"
-     role="tabpanel" aria-labelledby="tab-btn-upload" tabindex="0">
+     role="tabpanel" aria-labelledby="tab-btn-upload">
             <div class="upload-section">
               <h3 class="section-title">Upload Image</h3>
               <div id="upload-dropzone" class="dropzone">
@@ -55,7 +55,7 @@
             </div>
           </div>
           <div id="tab-text" class="tab-pane"
-     role="tabpanel" aria-labelledby="tab-btn-text" tabindex="0">
+     role="tabpanel" aria-labelledby="tab-btn-text">
             <div class="text-section">
               <h3 class="section-title">Add Text</h3>
               <div class="product-info-section">
@@ -99,9 +99,12 @@
                 <div class="form-group">
                   <label class="form-label">Align</label>
                   <div class="style-buttons">
-                    <button class="style-btn align-btn" data-align="left" title="Left Align">&#8676;</button>
-                    <button class="style-btn align-btn" data-align="center" title="Center Align">&#8803;</button>
-                    <button class="style-btn align-btn" data-align="right" title="Right Align">&#8677;</button>
+                    <button class="style-btn align-btn" data-align="left" title="Left Align"
+                            aria-label="Align left" aria-pressed="false">&#8676;</button>
+                    <button class="style-btn align-btn" data-align="center" title="Center Align"
+                            aria-label="Align center" aria-pressed="false">&#8803;</button>
+                    <button class="style-btn align-btn" data-align="right" title="Right Align"
+                            aria-label="Align right" aria-pressed="false">&#8677;</button>
                   </div>
                 </div>
                 <button id="delete-selected" class="btn btn-secondary" style="width:100%; margin-top:12px;">Delete Selected</button>
