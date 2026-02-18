@@ -594,7 +594,6 @@ function initMobileSidebar() {
 
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && app.classList.contains('sidebar-open')) {
-      e.preventDefault();
       closeSidebar();
     }
   });
