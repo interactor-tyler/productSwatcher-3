@@ -632,6 +632,30 @@ function initMobileSidebar() {
   });
 }
 
+// ===== TOUCH ZOOM (PINCH) =====
+function initTouchZoom() {
+  const canvas = state.canvas;
+  let gestureStartZoom = null;
+
+  canvas.on('touch:gesture', function(opt) {
+    if (!opt.e.touches || opt.e.touches.length < 2) return;
+
+    // Capture zoom at gesture start
+    if (gestureStartZoom === null) {
+      gestureStartZoom = state.zoomLevel;
+    }
+
+    // opt.self.scale is cumulative from gesture start
+    const newZoom = gestureStartZoom * opt.self.scale;
+    setZoom(newZoom);
+  });
+
+  // Reset on finger lift so next gesture starts fresh
+  canvas.on('mouse:up', function() {
+    gestureStartZoom = null;
+  });
+}
+
 // ===== INIT =====
 document.addEventListener('DOMContentLoaded', () => {
   initCanvas();
@@ -644,4 +668,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initResize();
   initKeyboard();
   initMobileSidebar();
+  initTouchZoom();
 });
