@@ -465,6 +465,75 @@ body {
   font-size: 13px;
 }
 
+/* ===== ROTATE CONTROLS ===== */
+.rotate-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #cccccc;
+}
+
+.rotate-label {
+  font-family: "Hind", sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  color: #8c8b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.rotate-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  background: #ffffff;
+  cursor: pointer;
+  font-size: 18px;
+  font-weight: 600;
+  color: #33363b;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.rotate-btn:hover {
+  background: #f4faf0;
+  border-color: #7ebc59;
+  color: #7ebc59;
+}
+
+.rotate-value {
+  width: 48px;
+  border: 1px solid #cccccc;
+  border-radius: 0;
+  background: #ffffff;
+  font-family: "Lato", sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: #33363b;
+  text-align: center;
+  padding: 4px 2px;
+  transition: border-color 0.2s;
+}
+
+.rotate-value:focus {
+  border-color: #7ebc59;
+  outline: none;
+}
+
+.rotate-reset {
+  border-radius: 0;
+  width: auto;
+  padding: 6px 12px;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
 /* ===== ZOOM CONTROLS ===== */
 .zoom-controls {
   display: flex;
@@ -618,7 +687,8 @@ body {
     min-height: 44px;
   }
 
-  .zoom-btn {
+  .zoom-btn,
+  .rotate-btn {
     width: 44px;
     height: 44px;
   }

@@ -274,6 +274,7 @@ const state = {
   backgroundImage: null,
   quillEditor: null,
   zoomLevel: 1,
+  bgRotation: 0,
   uploadedOverlays: [],
   isPanning: false,
   panStartX: 0,
@@ -355,6 +356,11 @@ function setBackgroundImage(dataUrl) {
 
     state.backgroundImage = img;
     canvas.insertAt(img, 0);
+
+    // Reset rotation for new background
+    state.bgRotation = 0;
+    document.getElementById('rotate-value').value = '0\u00B0';
+
     canvas.renderAll();
   });
 }
@@ -608,6 +614,69 @@ function updateTextControls() {
   btnItalic.setAttribute('aria-pressed', String(isItalic));
   btnUnderline.classList.toggle('active', isUnderline);
   btnUnderline.setAttribute('aria-pressed', String(isUnderline));
+}
+
+// ===== ROTATE FUNCTIONALITY =====
+function initRotate() {
+  document.getElementById('rotate-cw').addEventListener('click', () => {
+    setBackgroundRotation(state.bgRotation + 15);
+  });
+
+  document.getElementById('rotate-ccw').addEventListener('click', () => {
+    setBackgroundRotation(state.bgRotation - 15);
+  });
+
+  document.getElementById('rotate-reset').addEventListener('click', () => {
+    setBackgroundRotation(0);
+  });
+
+  const rotateInput = document.getElementById('rotate-value');
+
+  rotateInput.addEventListener('focus', () => {
+    // Strip the degree symbol for easier editing
+    rotateInput.value = String(state.bgRotation);
+    rotateInput.select();
+  });
+
+  rotateInput.addEventListener('blur', () => {
+    applyRotateInput(rotateInput);
+  });
+
+  rotateInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      applyRotateInput(rotateInput);
+      rotateInput.blur();
+    }
+  });
+}
+
+function applyRotateInput(input) {
+  const parsed = parseInt(input.value, 10);
+  if (!isNaN(parsed)) {
+    setBackgroundRotation(parsed);
+  } else {
+    // Revert to current value on invalid input
+    input.value = state.bgRotation + '\u00B0';
+  }
+}
+
+function setBackgroundRotation(angle) {
+  angle = ((angle % 360) + 360) % 360;
+  state.bgRotation = angle;
+  document.getElementById('rotate-value').value = angle + '\u00B0';
+
+  const bg = state.backgroundImage;
+  if (!bg || bg.name === 'defaultBackground') return;
+
+  const canvas = state.canvas;
+  bg.set({
+    angle: angle,
+    originX: 'center',
+    originY: 'center',
+    left: canvas.width / 2,
+    top: canvas.height / 2,
+  });
+  canvas.renderAll();
 }
 
 // ===== ZOOM FUNCTIONALITY =====
@@ -1042,6 +1111,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTabs();
   initUpload();
   initText();
+  initRotate();
   initZoom();
   initPanning();
   initToolbar();
