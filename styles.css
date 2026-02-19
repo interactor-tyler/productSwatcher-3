@@ -258,6 +258,107 @@ body {
   border-color: #7ebc59;
 }
 
+/* ===== PRODUCT IMAGE PICKER ===== */
+.product-images-section {
+  margin-top: 20px;
+  border-top: 1px solid #cccccc;
+  padding-top: 16px;
+}
+
+.color-variants-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.product-thumb-btn {
+  padding: 0;
+  border: 2px solid #cccccc;
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.2s;
+}
+
+.color-variants-row .product-thumb-btn {
+  flex: 1;
+  min-width: 0;
+}
+
+.product-thumb-btn img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: cover;
+}
+
+.product-thumb-btn:hover {
+  border-color: #7ebc59;
+}
+
+.product-thumb-btn.active {
+  border-color: #7ebc59;
+}
+
+.product-thumb-btn.active::after {
+  content: '\2713';
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background: #7ebc59;
+  color: #ffffff;
+  width: 18px;
+  height: 18px;
+  font-size: 12px;
+  line-height: 18px;
+  text-align: center;
+  font-weight: 700;
+}
+
+.product-category {
+  margin-bottom: 4px;
+}
+
+.product-category-header {
+  font-family: "Hind", sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  color: #8c8b8b;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 10px 0;
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.product-category-header::-webkit-details-marker {
+  display: none;
+}
+
+.product-category-header::before {
+  content: '\25B6';
+  font-size: 8px;
+  transition: transform 0.2s;
+  display: inline-block;
+}
+
+.product-category[open] > .product-category-header::before {
+  transform: rotate(90deg);
+}
+
+.product-category-header:hover {
+  color: #7ebc59;
+}
+
+.product-category .thumb-grid {
+  padding-bottom: 12px;
+}
+
 /* ===== FORM ELEMENTS ===== */
 .form-group {
   margin-bottom: 12px;
@@ -538,5 +639,15 @@ body {
     flex: 1;
     min-width: 80px;
     text-align: center;
+  }
+
+  /* Product image picker: touch targets */
+  .product-thumb-btn {
+    min-height: 44px;
+  }
+
+  .product-category-header {
+    min-height: 44px;
+    padding: 12px 0;
   }
 }
