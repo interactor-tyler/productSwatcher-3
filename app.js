@@ -466,6 +466,7 @@ function addOverlayThumbnail(dataUrl) {
   const thumbsContainer = document.getElementById('overlay-thumbs');
   const thumb = document.createElement('img');
   thumb.src = dataUrl;
+  thumb.alt = 'Uploaded overlay ' + state.uploadedOverlays.length;
   thumb.title = 'Click to add again';
   thumb.addEventListener('click', () => addOverlayImage(dataUrl));
   thumbsContainer.appendChild(thumb);
