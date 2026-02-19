@@ -426,6 +426,9 @@ function handleImageUpload(file) {
 
     if (mode === 'background') {
       setBackgroundImage(dataUrl);
+      if (state.clearActiveProductThumbs) {
+        state.clearActiveProductThumbs();
+      }
     } else {
       addOverlayImage(dataUrl);
       addOverlayThumbnail(dataUrl);
@@ -768,6 +771,11 @@ function handleCancel() {
       btn.setAttribute('aria-pressed', 'false');
     }
   });
+
+  // Clear product image picker selection
+  if (state.clearActiveProductThumbs) {
+    state.clearActiveProductThumbs();
+  }
 
   canvas.renderAll();
 }
